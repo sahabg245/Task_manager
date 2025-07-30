@@ -34,12 +34,14 @@ const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, se
         <div className="fixed inset-0 bg-gray-200 flex justify-center items-center z-50">
             <form
                 onSubmit={handleSubmit}
-                className="bg-gray-300 h-120 w-120 rounded-xl p-5"
-            >
-                <label className="font-bold text-3xl flex justify-center">
-                    Add new Task
-                </label>
-
+                className="bg-gray-300 h-120 w-120 rounded-xl p-5">
+                <div className="fixed flex items-center justify-center ml-95" >
+                    <button type="button" onClick={() => setModal(false)} className='bg-red-600 font-bold text-3xl w-15 rounded'>X</button>
+                </div>
+                    <label className="font-bold text-3xl flex justify-center">
+                        Add new Task
+                    </label>
+                
                 <div className="flex-col items-center justify-center p-2">
                     <label
                         htmlFor="add_task"
