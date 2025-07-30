@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { app } from '../firebase'
+import { getDatabase, ref, set, push, onValue } from 'firebase/database';
+import Child_com from './Child_com';
+
 
 
 type PopUpProps = {
@@ -12,9 +16,9 @@ type PopUpProps = {
     setModal: any;
 };
 
-const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, setTaskPriority, showModal, setModal }: PopUpProps) => {
+const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, setTaskPriority, setModal }: PopUpProps) => {
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!taskName || !taskDesc || !taskPriority) {
@@ -22,12 +26,24 @@ const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, se
             return;
         }
 
-        alert("Task added successfully!");
-        setTaskName("");
-        setTaskDesc("");
-        setTaskPriority("");
+        try {
+            const db = getDatabase(app);
+            const dataRef = push(ref(db, "task_info"));
+            await set(dataRef, {
+                taskName,
+                taskDesc,
+                taskPriority
+            })
 
-        setModal(false);
+            alert("Task added successfully!");
+            setTaskName("");
+            setTaskDesc("");
+            setTaskPriority("");
+
+            setModal(false);
+        } catch (error: any) {
+            alert("Error" + error.message)
+        }
     }
 
     return (
@@ -38,10 +54,10 @@ const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, se
                 <div className="fixed flex items-center justify-center ml-95" >
                     <button type="button" onClick={() => setModal(false)} className='bg-red-600 font-bold text-3xl w-15 rounded'>X</button>
                 </div>
-                    <label className="font-bold text-3xl flex justify-center">
-                        Add new Task
-                    </label>
-                
+                <label className="font-bold text-3xl flex justify-center">
+                    Add new Task
+                </label>
+
                 <div className="flex-col items-center justify-center p-2">
                     <label
                         htmlFor="add_task"
@@ -96,50 +112,78 @@ const Pop_Up = ({ taskName, setTaskName, taskDesc, setTaskDesc, taskPriority, se
                 </div>
 
                 <button type="submit"
-                    className="font-semibold p-1.5 border rounded-sm bg-blue-400 ml-45 mt-8 w-22 hover:bg-blue-600 duration-300"
-                >
+                    className="font-semibold p-1.5 border rounded-sm bg-blue-400 ml-45 mt-8 w-22 hover:bg-blue-600 duration-300">
                     Add Task
                 </button>
             </form>
         </div>
     );
 };
-
 const Modal = () => {
     const [showModal, setModal] = useState(false);
     const [taskName, setTaskName] = useState("");
     const [taskDesc, setTaskDesc] = useState("");
-    const [taskPriority, setTaskPriority] = useState("")
+    const [taskPriority, setTaskPriority] = useState("");
+    const [tasks, setTasks] = useState<any[]>([]);
+
+    useEffect(() => {
+        const db = getDatabase(app);
+        const taskRef = ref(db, 'task_info');
+
+        onValue(taskRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const taskArray = Object.entries(data).map(([id, value]: any) => ({
+                    id,
+                    ...value,
+                }));
+                setTasks(taskArray);
+            } else {
+                setTasks([]);
+            }
+        });
+    }, []);
 
     return (
         <>
-            <div className="fixed bottom-6 right-6 z-50">
-                <button
-                    onClick={() => {
-                        if (showModal) {
-                            setTaskName("");
-                            setTaskDesc("");
-                            setTaskPriority("");
-                        }
-                        setModal(prev => !prev);
-                    }}
-                    className='font-bold p-4 border rounded-2xl text-2xl w-15'
-                >
-                    +
-                </button>
+            <div className='bg-gray-300 min-h-screen w-screen p-10'>
+                <h1 className='text-4xl font-bold flex justify-center mb-10'>
+                    Welcome to Task Manager app
+                </h1>
+                <div className='flex flex-col items-center gap-4'>
+                    {tasks.map(task => (
+                        <Child_com taskId={task.id} taskName={task.taskName} taskDesc={task.taskDesc} taskPriority={task.taskPriority}
+                        />
+                    ))}
+                </div>
+                <div className="fixed bottom-6 right-6 z-50">
+                    <button
+                        onClick={() => {
+                            if (showModal) {
+                                setTaskName("");
+                                setTaskDesc("");
+                                setTaskPriority("");
+                            }
+                            setModal(prev => !prev);
+                        }}
+                        className='font-bold p-3 border-2 rounded-2xl text-2xl w-15 bg-orange-300 hover:bg-orange-400 duration-200'
+                    >
+                        +
+                    </button>
 
-                {showModal && (
-                    <Pop_Up
-                        taskName={taskName}
-                        setTaskName={setTaskName}
-                        taskDesc={taskDesc}
-                        setTaskDesc={setTaskDesc}
-                        taskPriority={taskPriority}
-                        setTaskPriority={setTaskPriority}
-                        showModal={showModal}
-                        setModal={setModal}
-                    />
-                )}
+                    {showModal && (
+                        <Pop_Up
+                            taskName={taskName}
+                            setTaskName={setTaskName}
+                            taskDesc={taskDesc}
+                            setTaskDesc={setTaskDesc}
+                            taskPriority={taskPriority}
+                            setTaskPriority={setTaskPriority}
+                            showModal={showModal}
+                            setModal={setModal}
+                        />
+                    )}
+                </div>
             </div>
         </>
     );
