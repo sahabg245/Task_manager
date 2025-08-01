@@ -146,7 +146,7 @@ const Modal = () => {
 
     return (
         <>
-            <div className='min-h-screen w-screen p-10 bg-gray-800'>
+            <div className='h-screen w-screen p-10 bg-gray-800'>
                 <h1 className=' text-white text-4xl font-bold flex justify-center mb-10'>
                     Welcome to Task Manager app
                 </h1>
