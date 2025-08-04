@@ -43,7 +43,7 @@ const EditMenu = ({ initialName, initialDesc, initialPriority, onClose, onSave }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!taskName.trim() || !taskPriority) {
+        if (!taskName || !taskPriority) {
             alert("Please fill all required fields");
             return;
         }
