@@ -2,6 +2,8 @@ import { getDatabase, update, ref, remove } from 'firebase/database';
 import { app } from '../firebase';
 import { useState } from 'react';
 import task from '../images/task.png';
+import edit from '../images/edit.png'
+import delete_img from '../images/bin.png'
 
 type TaskProps = {
   taskId: string;
@@ -176,13 +178,13 @@ const ChildComponent = ({ taskId, taskName, taskDesc, taskPriority }: TaskProps)
             onClick={() => setShowEditMenu(true)}
             className="text-gray-500 hover:text-blue-600 transition-colors"
           >
-            <img src="/src/images/edit.png" alt="Edit" className='w-12' />
+            <img src={edit} alt="Edit" className='w-12' />
           </button>
           <button
             onClick={handleDelete}
             className="text-gray-500 hover:text-red-600 transition-colors p-1"
           >
-           <img src="/src/images/bin.png" alt="Delete" className='w-10' />
+           <img src={delete_img} alt="Delete" className='w-10' />
           </button>
         </div>
       </div>
